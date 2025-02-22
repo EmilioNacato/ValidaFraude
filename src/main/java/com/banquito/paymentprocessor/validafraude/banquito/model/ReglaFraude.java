@@ -1,59 +1,44 @@
 package com.banquito.paymentprocessor.validafraude.banquito.model;
 
+import java.math.BigDecimal;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-
-@RedisHash("regla_fraude")
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
-@ToString
-public class ReglaFraude implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
+@RedisHash("regla_fraude")
+@Schema(description = "Modelo para las reglas de fraude")
+public class ReglaFraude {
+    
     @Id
+    @Schema(description = "Código único de la regla de fraude", example = "REGLA001")
     private String codReglaFraude;
-
+    
+    @Indexed
+    @Schema(description = "Nombre de la regla", example = "Límite de monto por transacción")
     private String nombreRegla;
-
+    
+    @Schema(description = "Descripción detallada de la regla", example = "Valida que el monto de la transacción no exceda el límite establecido")
     private String descripcion;
-
-    @Indexed
+    
+    @Schema(description = "Tipo de regla (MONTO, FRECUENCIA, etc)", example = "MONTO")
     private String tipoRegla;
-
+    
+    @Schema(description = "Monto límite para la regla", example = "1000.00")
     private BigDecimal montoLimite;
-
+    
+    @Schema(description = "Máximo número de transacciones permitidas", example = "5")
     private Integer maxTransacciones;
-
+    
+    @Schema(description = "Período de tiempo en minutos para la validación", example = "1440")
     private Integer periodoMinutos;
-
-    @Indexed
+    
+    @Schema(description = "Estado de la regla (activa/inactiva)", example = "true")
     private Boolean estado;
-
-    public ReglaFraude(String codReglaFraude) {
-        this.codReglaFraude = codReglaFraude;
-    }
-
-    @Override
-    public int hashCode() {
-        return codReglaFraude != null ? codReglaFraude.hashCode() : 0;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        ReglaFraude other = (ReglaFraude) obj;
-        return codReglaFraude != null && codReglaFraude.equals(other.codReglaFraude);
-    }
 } 
