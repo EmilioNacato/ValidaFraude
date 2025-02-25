@@ -1,5 +1,7 @@
 package com.banquito.paymentprocessor.validafraude.banquito.controller.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
@@ -16,4 +18,8 @@ public interface ReglaFraudeMapper {
     ReglaFraudeDTO toDTO(ReglaFraude model);
     
     ReglaFraude toModel(ReglaFraudeDTO dto);
+
+    List<ReglaFraudeDTO> toDTOList(List<ReglaFraude> modelList);
+
+    List<ReglaFraude> toModelList(List<ReglaFraudeDTO> dtoList);
 } 
