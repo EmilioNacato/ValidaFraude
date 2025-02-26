@@ -1,24 +1,52 @@
 package com.banquito.paymentprocessor.validafraude.banquito.service;
 
+import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Optional;
 
 import com.banquito.paymentprocessor.validafraude.banquito.exception.ReglaFraudeNotFoundException;
 import com.banquito.paymentprocessor.validafraude.banquito.model.ReglaFraude;
 import com.banquito.paymentprocessor.validafraude.banquito.repository.ReglaFraudeRepository;
 
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 @Slf4j
 public class ReglaFraudeService {
 
+    private static final String KEY_REGLAS = "fraude:reglas";
+    private final RedisTemplate<String, ReglaFraudeDTO> redisTemplate;
     private final ReglaFraudeRepository reglaFraudeRepository;
 
-    public ReglaFraudeService(ReglaFraudeRepository reglaFraudeRepository) {
+    public ReglaFraudeService(RedisTemplate<String, ReglaFraudeDTO> redisTemplate, ReglaFraudeRepository reglaFraudeRepository) {
+        this.redisTemplate = redisTemplate;
         this.reglaFraudeRepository = reglaFraudeRepository;
+    }
+
+    public void guardarRegla(ReglaFraudeDTO regla) {
+        log.info("Guardando regla de fraude: {}", regla.getCodigo());
+        redisTemplate.opsForHash().put(KEY_REGLAS, regla.getCodigo(), regla);
+    }
+
+    public ReglaFraudeDTO obtenerRegla(String codigo) {
+        log.info("Obteniendo regla de fraude: {}", codigo);
+        return (ReglaFraudeDTO) redisTemplate.opsForHash().get(KEY_REGLAS, codigo);
+    }
+
+    public List<ReglaFraudeDTO> obtenerTodasLasReglas() {
+        log.info("Obteniendo todas las reglas de fraude");
+        return redisTemplate.opsForHash().values(KEY_REGLAS)
+                .stream()
+                .map(obj -> (ReglaFraudeDTO) obj)
+                .collect(Collectors.toList());
+    }
+
+    public void eliminarRegla(String codigo) {
+        log.info("Eliminando regla de fraude: {}", codigo);
+        redisTemplate.opsForHash().delete(KEY_REGLAS, codigo);
     }
 
     public List<ReglaFraude> obtenerTodas() {

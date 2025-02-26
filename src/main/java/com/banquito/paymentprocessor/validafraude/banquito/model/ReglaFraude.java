@@ -1,44 +1,33 @@
 package com.banquito.paymentprocessor.validafraude.banquito.model;
 
+import jakarta.persistence.*;
+import lombok.Data;
 import java.math.BigDecimal;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
-import org.springframework.data.redis.core.index.Indexed;
-
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 @Data
-@NoArgsConstructor
-@RedisHash("regla_fraude")
-@Schema(description = "Modelo para las reglas de fraude")
+@Entity
+@Table(name = "REGLA_FRAUDE")
 public class ReglaFraude {
     
     @Id
-    @Schema(description = "Código único de la regla de fraude", example = "REGLA001")
+    @Column(name = "COD_REGLA_FRAUDE", length = 10)
     private String codReglaFraude;
     
-    @Indexed
-    @Schema(description = "Nombre de la regla", example = "Límite de monto por transacción")
-    private String nombreRegla;
-    
-    @Schema(description = "Descripción detallada de la regla", example = "Valida que el monto de la transacción no exceda el límite establecido")
-    private String descripcion;
-    
-    @Schema(description = "Tipo de regla (MONTO, FRECUENCIA, etc)", example = "MONTO")
+    @Column(name = "TIPO_REGLA", length = 3, nullable = false)
     private String tipoRegla;
     
-    @Schema(description = "Monto límite para la regla", example = "1000.00")
+    @Column(name = "DESCRIPCION", length = 200)
+    private String descripcion;
+    
+    @Column(name = "ESTADO", nullable = false)
+    private boolean estado;
+    
+    @Column(name = "MONTO_LIMITE", precision = 18, scale = 2)
     private BigDecimal montoLimite;
     
-    @Schema(description = "Máximo número de transacciones permitidas", example = "5")
-    private Integer maxTransacciones;
+    @Column(name = "MAX_TRANSACCIONES")
+    private Integer maxTransaccionesPorMinuto;
     
-    @Schema(description = "Período de tiempo en minutos para la validación", example = "1440")
-    private Integer periodoMinutos;
-    
-    @Schema(description = "Estado de la regla (activa/inactiva)", example = "true")
-    private Boolean estado;
+    @Column(name = "PERIODO_EVALUACION")
+    private Integer periodoEvaluacion;
 } 
