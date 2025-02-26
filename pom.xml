@@ -14,7 +14,7 @@
 	<name>validafraude</name>
 	<description>Microservicio para validación de fraude</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>21</java.version>
 		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
 		<org.projectlombok.version>1.18.30</org.projectlombok.version>
 		<spring-cloud.version>2023.0.0</spring-cloud.version>
