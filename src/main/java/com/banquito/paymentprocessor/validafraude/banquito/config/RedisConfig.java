@@ -1,6 +1,7 @@
 package com.banquito.paymentprocessor.validafraude.banquito.config;
 
 import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.dto.TransaccionTemporalDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -42,6 +44,29 @@ public class RedisConfig {
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(ReglaFraudeDTO.class));
         template.setValueSerializer(new Jackson2JsonRedisSerializer<>(ReglaFraudeDTO.class));
+        return template;
+    }
+    
+    @Bean
+    public RedisTemplate<String, TransaccionTemporalDTO> transaccionTemporalRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, TransaccionTemporalDTO> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(TransaccionTemporalDTO.class));
+        return template;
+    }
+    
+    @Bean
+    public RedisTemplate<String, Object> objectRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        
+        GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
+        template.setValueSerializer(jsonSerializer);
+        template.setHashValueSerializer(jsonSerializer);
+        
         return template;
     }
 } 

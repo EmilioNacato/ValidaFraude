@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ReglaFraudeDTO;
-import com.banquito.paymentprocessor.validafraude.banquito.controller.mapper.ReglaFraudeMapper;
-import com.banquito.paymentprocessor.validafraude.banquito.model.ReglaFraude;
+import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
 import com.banquito.paymentprocessor.validafraude.banquito.service.ReglaFraudeService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +24,6 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/reglas-fraude")
@@ -36,11 +33,9 @@ import java.util.stream.Collectors;
 public class ReglaFraudeController {
 
     private final ReglaFraudeService servicio;
-    private final ReglaFraudeMapper mapeador;
 
-    public ReglaFraudeController(ReglaFraudeService servicio, ReglaFraudeMapper mapeador) {
+    public ReglaFraudeController(ReglaFraudeService servicio) {
         this.servicio = servicio;
-        this.mapeador = mapeador;
     }
 
     @GetMapping("/listado/todas")
@@ -66,11 +61,8 @@ public class ReglaFraudeController {
     })
     public ResponseEntity<List<ReglaFraudeDTO>> obtenerTodasLasReglasFraude() {
         log.debug("Petición REST para obtener todas las reglas de fraude");
-        List<ReglaFraude> reglas = servicio.obtenerTodas();
-        List<ReglaFraudeDTO> dtos = reglas.stream()
-                .map(mapeador::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+        List<ReglaFraudeDTO> reglas = servicio.obtenerTodas();
+        return ResponseEntity.ok(reglas);
     }
 
     @GetMapping("/consulta/{codigoRegla}")
@@ -106,8 +98,8 @@ public class ReglaFraudeController {
             )
             @PathVariable("codigoRegla") String codigoRegla) {
         log.debug("Petición REST para consultar la regla de fraude con código: {}", codigoRegla);
-        ReglaFraude regla = servicio.buscarPorCodigo(codigoRegla);
-        return ResponseEntity.ok(mapeador.toDTO(regla));
+        ReglaFraudeDTO regla = servicio.buscarPorCodigo(codigoRegla);
+        return ResponseEntity.ok(regla);
     }
 
     @PostMapping("/registro")
@@ -144,9 +136,8 @@ public class ReglaFraudeController {
             )
             @Valid @RequestBody ReglaFraudeDTO reglaFraudeDTO) {
         log.debug("Petición REST para registrar nueva regla de fraude: {}", reglaFraudeDTO);
-        ReglaFraude regla = mapeador.toModel(reglaFraudeDTO);
-        ReglaFraude reglaGuardada = servicio.registrarNueva(regla);
-        return ResponseEntity.ok(mapeador.toDTO(reglaGuardada));
+        servicio.registrarNueva(reglaFraudeDTO);
+        return ResponseEntity.ok(reglaFraudeDTO);
     }
 
     @PutMapping("/actualizacion/{codigoRegla}")
@@ -194,9 +185,8 @@ public class ReglaFraudeController {
             )
             @Valid @RequestBody ReglaFraudeDTO reglaFraudeDTO) {
         log.debug("Petición REST para actualizar la regla de fraude con código: {}", codigoRegla);
-        ReglaFraude regla = mapeador.toModel(reglaFraudeDTO);
-        ReglaFraude reglaActualizada = servicio.actualizarExistente(codigoRegla, regla);
-        return ResponseEntity.ok(mapeador.toDTO(reglaActualizada));
+        servicio.actualizarExistente(codigoRegla, reglaFraudeDTO);
+        return ResponseEntity.ok(reglaFraudeDTO);
     }
 
     @DeleteMapping("/eliminacion/{codigoRegla}")
@@ -253,12 +243,9 @@ public class ReglaFraudeController {
         )
     })
     public ResponseEntity<List<ReglaFraudeDTO>> obtenerReglasActivas() {
-        log.debug("Petición REST para obtener reglas de fraude activas");
-        List<ReglaFraude> reglas = servicio.obtenerReglasActivas();
-        List<ReglaFraudeDTO> dtos = reglas.stream()
-                .map(mapeador::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+        log.debug("Petición REST para obtener todas las reglas de fraude activas");
+        List<ReglaFraudeDTO> reglas = servicio.obtenerReglasActivas();
+        return ResponseEntity.ok(reglas);
     }
 
     @GetMapping("/listado/activas/tipo/{tipoRegla}")
@@ -294,10 +281,7 @@ public class ReglaFraudeController {
             )
             @PathVariable String tipoRegla) {
         log.debug("Petición REST para obtener reglas de fraude activas por tipo: {}", tipoRegla);
-        List<ReglaFraude> reglas = servicio.obtenerReglasActivasPorTipo(tipoRegla);
-        List<ReglaFraudeDTO> dtos = reglas.stream()
-                .map(mapeador::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+        List<ReglaFraudeDTO> reglas = servicio.obtenerReglasActivasPorTipo(tipoRegla);
+        return ResponseEntity.ok(reglas);
     }
 } 
