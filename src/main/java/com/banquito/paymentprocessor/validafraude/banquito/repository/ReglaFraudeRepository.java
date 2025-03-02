@@ -24,7 +24,7 @@ public class ReglaFraudeRepository {
     }
 
     public void save(ReglaFraudeDTO regla) {
-        String key = KEY_PREFIX + regla.getCodigo();
+        String key = KEY_PREFIX + regla.getCodReglaFraude();
         log.info("Guardando regla de fraude en Redis: {}", key);
         redisTemplate.opsForValue().set(key, regla);
         // No se establece tiempo de expiración ya que es persistente
@@ -65,7 +65,7 @@ public class ReglaFraudeRepository {
     public List<ReglaFraudeDTO> findByTipoReglaAndEstadoTrue(String tipoRegla) {
         log.info("Obteniendo reglas de fraude activas por tipo: {}", tipoRegla);
         return findAll().stream()
-                .filter(regla -> regla.isEstado() && tipoRegla.equals(regla.getTipo()))
+                .filter(regla -> regla.isEstado() && tipoRegla.equals(regla.getTipoRegla()))
                 .collect(Collectors.toList());
     }
 } 

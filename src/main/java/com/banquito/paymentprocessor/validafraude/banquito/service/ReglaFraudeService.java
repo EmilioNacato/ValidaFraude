@@ -43,7 +43,7 @@ public class ReglaFraudeService {
         if (existente == null) {
             throw new ReglaFraudeNotFoundException(codigoRegla);
         }
-        reglaFraudeDTO.setCodigo(codigoRegla);
+        reglaFraudeDTO.setCodReglaFraude(codigoRegla);
         reglaFraudeRepository.save(reglaFraudeDTO);
     }
 
