@@ -38,7 +38,7 @@ public class ReglaFraudeController {
         this.servicio = servicio;
     }
 
-    @GetMapping("/listado/todas")
+    @GetMapping("/")
     @Operation(
         summary = "Obtener listado completo de reglas de fraude",
         description = "Retorna el listado completo de todas las reglas de fraude registradas en el sistema, " +
@@ -65,7 +65,7 @@ public class ReglaFraudeController {
         return ResponseEntity.ok(reglas);
     }
 
-    @GetMapping("/consulta/{codigoRegla}")
+    @GetMapping("/{codigoRegla}")
     @Operation(
         summary = "Consultar regla de fraude por código",
         description = "Retorna la información detallada de una regla de fraude específica según su código único"
@@ -140,7 +140,7 @@ public class ReglaFraudeController {
         return ResponseEntity.ok(reglaFraudeDTO);
     }
 
-    @PutMapping("/actualizacion/{codigoRegla}")
+    @PutMapping("/{codigoRegla}")
     @Operation(
         summary = "Actualizar regla de fraude existente",
         description = "Actualiza la información de una regla de fraude existente en el sistema. " +
@@ -189,7 +189,7 @@ public class ReglaFraudeController {
         return ResponseEntity.ok(reglaFraudeDTO);
     }
 
-    @DeleteMapping("/eliminacion/{codigoRegla}")
+    @DeleteMapping("/{codigoRegla}")
     @Operation(
         summary = "Eliminar regla de fraude",
         description = "Elimina una regla de fraude específica del sistema según su código único"
@@ -222,7 +222,7 @@ public class ReglaFraudeController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/listado/activas")
+    @GetMapping("/activas")
     @Operation(
         summary = "Obtener listado de reglas activas",
         description = "Retorna el listado de todas las reglas de fraude que están actualmente activas en el sistema"
@@ -248,7 +248,7 @@ public class ReglaFraudeController {
         return ResponseEntity.ok(reglas);
     }
 
-    @GetMapping("/listado/activas/tipo/{tipoRegla}")
+    @GetMapping("/{tipoRegla}")
     @Operation(
         summary = "Obtener listado de reglas activas por tipo",
         description = "Retorna el listado de reglas de fraude activas filtradas por un tipo específico (MON/TRX)"

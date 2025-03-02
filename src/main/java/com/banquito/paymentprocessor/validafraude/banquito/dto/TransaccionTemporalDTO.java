@@ -2,13 +2,14 @@ package com.banquito.paymentprocessor.validafraude.banquito.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.io.Serializable;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class TransaccionTemporalDTO {
+public class TransaccionTemporalDTO implements Serializable {
     
     private Long id;
     private String codTransaccion;

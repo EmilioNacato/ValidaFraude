@@ -7,18 +7,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication(exclude = {
-	DataSourceAutoConfiguration.class,
-	DataSourceTransactionManagerAutoConfiguration.class,
-	HibernateJpaAutoConfiguration.class,
-	JpaRepositoriesAutoConfiguration.class
-})
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 public class BanquitoApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(BanquitoApplication.class);
@@ -43,6 +36,7 @@ public class BanquitoApplication {
 				log.info("Iniciando microservicio de validación de fraude con Redis...");
 				log.info("Configuración MDC: microservicio={}, version={}", 
 						nombreMicroservicio, versionMicroservicio);
+				log.info("Usando solo Redis para almacenamiento de reglas de fraude - PostgreSQL deshabilitado");
 			} finally {
 				MDC.clear();
 			}
