@@ -38,7 +38,7 @@ public class ReglaFraudeController {
         this.servicio = servicio;
     }
 
-    @GetMapping("/todas")
+    @GetMapping("/")
     @Operation(
         summary = "Obtener listado completo de reglas de fraude",
         description = "Retorna el listado completo de todas las reglas de fraude registradas en el sistema, " +
