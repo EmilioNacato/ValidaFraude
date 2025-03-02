@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/reglas-fraude")
+@RequestMapping("/v1/reglas-fraude")
 @Tag(name = "Reglas de Fraude", 
      description = "API para la gestión y administración de reglas de detección de fraude")
 @Slf4j
