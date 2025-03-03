@@ -66,4 +66,21 @@ public class ReglaFraudeService {
         log.debug("Obteniendo listado de reglas de fraude activas por tipo: {}", tipoRegla);
         return redisRepository.findByTipoReglaAndEstadoTrue(tipoRegla);
     }
+
+    public ReglaFraudeDTO cambiarEstadoRegla(String codigoRegla, Boolean nuevoEstado) {
+        log.debug("Cambiando estado de regla de fraude {} a {}", codigoRegla, nuevoEstado);
+        ReglaFraudeDTO reglaExistente = redisRepository.findById(codigoRegla);
+        if (reglaExistente == null) {
+            throw new ReglaFraudeNotFoundException(codigoRegla);
+        }
+        
+        // Actualizar solo el estado
+        reglaExistente.setEstado(nuevoEstado);
+        
+        // Guardar la regla actualizada
+        redisRepository.save(reglaExistente);
+        
+        log.info("Estado de regla {} actualizado exitosamente a {}", codigoRegla, nuevoEstado);
+        return reglaExistente;
+    }
 } 
