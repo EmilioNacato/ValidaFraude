@@ -29,10 +29,10 @@ import org.mockito.quality.Strictness;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
-import com.banquito.paymentprocessor.validafraude.banquito.dto.TransaccionTemporalDTO;
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ValidacionFraudeRequestDTO;
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ValidacionFraudeResponseDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ReglaFraudeDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.TransaccionTemporalDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ValidacionFraudeRequestDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ValidacionFraudeResponseDTO;
 import com.banquito.paymentprocessor.validafraude.banquito.repository.ReglaFraudeRepository;
 import com.banquito.paymentprocessor.validafraude.banquito.repository.TransaccionTemporalRepository;
 
@@ -71,24 +71,24 @@ public class ValidacionFraudeServiceTest {
         requestDTO.setTipoTransaccion("COMPRA");
 
         ReglaFraudeDTO reglaMontoLimite = new ReglaFraudeDTO();
-        reglaMontoLimite.setCodigo("RGL001");
-        reglaMontoLimite.setTipo("MON");
+        reglaMontoLimite.setCodReglaFraude("RGL001");
+        reglaMontoLimite.setTipoRegla("MON");
         reglaMontoLimite.setDescripcion("Regla de monto límite");
         reglaMontoLimite.setEstado(true);
         reglaMontoLimite.setMontoLimite(new BigDecimal("5000.00"));
         reglasMontoLimite = Arrays.asList(reglaMontoLimite);
 
         ReglaFraudeDTO reglaFrecuencia = new ReglaFraudeDTO();
-        reglaFrecuencia.setCodigo("RGL002");
-        reglaFrecuencia.setTipo("FRQ");
+        reglaFrecuencia.setCodReglaFraude("RGL002");
+        reglaFrecuencia.setTipoRegla("FRQ");
         reglaFrecuencia.setDescripcion("Regla de frecuencia de transacciones");
         reglaFrecuencia.setEstado(true);
         reglaFrecuencia.setMaxTransaccionesPorMinuto(3);
         reglasFrecuencia = Arrays.asList(reglaFrecuencia);
 
         ReglaFraudeDTO reglaPatron = new ReglaFraudeDTO();
-        reglaPatron.setCodigo("RGL003");
-        reglaPatron.setTipo("PAT");
+        reglaPatron.setCodReglaFraude("RGL003");
+        reglaPatron.setTipoRegla("PAT");
         reglaPatron.setDescripcion("Regla de patrón de tiempo");
         reglaPatron.setEstado(true);
         reglaPatron.setMaxTransaccionesPorMinuto(5);
@@ -173,7 +173,7 @@ public class ValidacionFraudeServiceTest {
     @Test
     void guardarRegla_llamaRepositorioCorrectamente() {
         ReglaFraudeDTO regla = new ReglaFraudeDTO();
-        regla.setCodigo("RGL001");
+        regla.setCodReglaFraude("RGL001");
 
         validacionFraudeService.guardarRegla(regla);
 

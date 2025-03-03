@@ -16,8 +16,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ValidacionFraudeRequestDTO;
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ValidacionFraudeResponseDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ValidacionFraudeRequestDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ValidacionFraudeResponseDTO;
 import com.banquito.paymentprocessor.validafraude.banquito.service.ValidacionFraudeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

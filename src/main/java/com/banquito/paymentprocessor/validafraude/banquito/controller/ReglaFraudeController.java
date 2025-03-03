@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ReglaFraudeDTO;
 import com.banquito.paymentprocessor.validafraude.banquito.service.ReglaFraudeService;
 
 import io.swagger.v3.oas.annotations.Operation;

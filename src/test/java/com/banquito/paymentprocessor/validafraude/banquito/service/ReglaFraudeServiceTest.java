@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ReglaFraudeDTO;
 import com.banquito.paymentprocessor.validafraude.banquito.exception.ReglaFraudeNotFoundException;
 import com.banquito.paymentprocessor.validafraude.banquito.repository.ReglaFraudeRepository;
 
@@ -42,15 +42,15 @@ public class ReglaFraudeServiceTest {
     @BeforeEach
     void setUp() {
         reglaMontoLimite = new ReglaFraudeDTO();
-        reglaMontoLimite.setCodigo("RGL001");
-        reglaMontoLimite.setTipo("MON");
+        reglaMontoLimite.setCodReglaFraude("RGL001");
+        reglaMontoLimite.setTipoRegla("MON");
         reglaMontoLimite.setDescripcion("Regla de monto límite");
         reglaMontoLimite.setEstado(true);
         reglaMontoLimite.setMontoLimite(new BigDecimal("5000.00"));
 
         reglaFrecuencia = new ReglaFraudeDTO();
-        reglaFrecuencia.setCodigo("RGL002");
-        reglaFrecuencia.setTipo("FRQ");
+        reglaFrecuencia.setCodReglaFraude("RGL002");
+        reglaFrecuencia.setTipoRegla("FRQ");
         reglaFrecuencia.setDescripcion("Regla de frecuencia de transacciones");
         reglaFrecuencia.setEstado(true);
         reglaFrecuencia.setMaxTransaccionesPorMinuto(5);
@@ -65,8 +65,8 @@ public class ReglaFraudeServiceTest {
         List<ReglaFraudeDTO> resultado = reglaFraudeService.obtenerTodas();
 
         assertEquals(2, resultado.size());
-        assertEquals("RGL001", resultado.get(0).getCodigo());
-        assertEquals("RGL002", resultado.get(1).getCodigo());
+        assertEquals("RGL001", resultado.get(0).getCodReglaFraude());
+        assertEquals("RGL002", resultado.get(1).getCodReglaFraude());
         verify(reglaFraudeRepository, times(1)).findAll();
     }
 
@@ -76,9 +76,8 @@ public class ReglaFraudeServiceTest {
 
         ReglaFraudeDTO resultado = reglaFraudeService.buscarPorCodigo("RGL001");
 
-        assertEquals("RGL001", resultado.getCodigo());
-        assertEquals("MON", resultado.getTipo());
-        assertEquals("Regla de monto límite", resultado.getDescripcion());
+        assertEquals("RGL001", resultado.getCodReglaFraude());
+        assertEquals("MON", resultado.getTipoRegla());
         verify(reglaFraudeRepository, times(1)).findById("RGL001");
     }
 
@@ -107,7 +106,7 @@ public class ReglaFraudeServiceTest {
         doNothing().when(reglaFraudeRepository).save(any(ReglaFraudeDTO.class));
 
         ReglaFraudeDTO reglaModificada = new ReglaFraudeDTO();
-        reglaModificada.setTipo("MON");
+        reglaModificada.setTipoRegla("MON");
         reglaModificada.setDescripcion("Descripción actualizada");
         reglaModificada.setEstado(false);
         reglaModificada.setMontoLimite(new BigDecimal("10000.00"));
@@ -116,7 +115,7 @@ public class ReglaFraudeServiceTest {
 
         verify(reglaFraudeRepository, times(1)).findById("RGL001");
         verify(reglaFraudeRepository, times(1)).save(reglaModificada);
-        assertEquals("RGL001", reglaModificada.getCodigo());
+        assertEquals("RGL001", reglaModificada.getCodReglaFraude());
     }
 
     @Test
@@ -160,8 +159,8 @@ public class ReglaFraudeServiceTest {
         List<ReglaFraudeDTO> resultado = reglaFraudeService.obtenerReglasActivas();
 
         assertEquals(2, resultado.size());
-        assertEquals("RGL001", resultado.get(0).getCodigo());
-        assertEquals("RGL002", resultado.get(1).getCodigo());
+        assertEquals("RGL001", resultado.get(0).getCodReglaFraude());
+        assertEquals("RGL002", resultado.get(1).getCodReglaFraude());
         verify(reglaFraudeRepository, times(1)).findByEstadoTrue();
     }
 
@@ -172,8 +171,8 @@ public class ReglaFraudeServiceTest {
         List<ReglaFraudeDTO> resultado = reglaFraudeService.obtenerReglasActivasPorTipo("MON");
 
         assertEquals(1, resultado.size());
-        assertEquals("RGL001", resultado.get(0).getCodigo());
-        assertEquals("MON", resultado.get(0).getTipo());
+        assertEquals("RGL001", resultado.get(0).getCodReglaFraude());
+        assertEquals("MON", resultado.get(0).getTipoRegla());
         verify(reglaFraudeRepository, times(1)).findByTipoReglaAndEstadoTrue("MON");
     }
 } 

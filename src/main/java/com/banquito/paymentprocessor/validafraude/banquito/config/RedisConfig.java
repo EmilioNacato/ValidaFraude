@@ -1,7 +1,7 @@
 package com.banquito.paymentprocessor.validafraude.banquito.config;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
-import com.banquito.paymentprocessor.validafraude.banquito.dto.TransaccionTemporalDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ReglaFraudeDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.TransaccionTemporalDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 

@@ -25,12 +25,15 @@ public class ValidacionFraudeRequestDTO {
     @Schema(description = "Monto de la transacción", example = "100.50")
     private BigDecimal monto;
 
-    @NotBlank(message = "El código de transacción es requerido")
-    @Schema(description = "Código único de la transacción", example = "TRX123456")
-    private String codigoTransaccion;
+    @NotBlank(message = "El código de comercio es requerido")
+    @Schema(description = "Código del comercio", example = "COM123")
+    private String codigoComercio;
 
-    @NotBlank(message = "El SWIFT del banco es requerido")
-    @Size(min = 8, max = 11, message = "El SWIFT del banco debe tener entre 8 y 11 caracteres")
-    @Schema(description = "Código SWIFT del banco", example = "BANKEC21")
-    private String swiftBanco;
+    @NotBlank(message = "El código único es requerido")
+    @Schema(description = "Código único de la transacción", example = "TRX123456")
+    private String codigoUnico;
+
+    @NotBlank(message = "El tipo de transacción es requerido")
+    @Schema(description = "Tipo de transacción (PEN, APR, REC, etc.)", example = "PEN")
+    private String tipoTransaccion;
 } 

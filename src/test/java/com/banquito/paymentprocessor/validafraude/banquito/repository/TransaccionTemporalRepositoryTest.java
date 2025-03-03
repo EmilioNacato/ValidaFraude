@@ -28,7 +28,7 @@ import org.mockito.quality.Strictness;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.TransaccionTemporalDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.TransaccionTemporalDTO;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)

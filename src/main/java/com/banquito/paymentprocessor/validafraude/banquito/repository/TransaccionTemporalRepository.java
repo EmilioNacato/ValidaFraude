@@ -1,6 +1,6 @@
 package com.banquito.paymentprocessor.validafraude.banquito.repository;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.TransaccionTemporalDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.TransaccionTemporalDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
