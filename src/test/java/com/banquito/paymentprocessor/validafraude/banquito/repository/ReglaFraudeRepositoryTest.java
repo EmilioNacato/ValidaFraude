@@ -28,7 +28,7 @@ import org.mockito.quality.Strictness;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ReglaFraudeDTO;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -51,15 +51,15 @@ public class ReglaFraudeRepositoryTest {
     @BeforeEach
     void setUp() {
         reglaMontoLimite = new ReglaFraudeDTO();
-        reglaMontoLimite.setCodigo("RGL001");
-        reglaMontoLimite.setTipo("MON");
+        reglaMontoLimite.setCodReglaFraude("RGL001");
+        reglaMontoLimite.setTipoRegla("MON");
         reglaMontoLimite.setDescripcion("Regla de monto límite");
         reglaMontoLimite.setEstado(true);
         reglaMontoLimite.setMontoLimite(new BigDecimal("5000.00"));
 
         reglaFrecuencia = new ReglaFraudeDTO();
-        reglaFrecuencia.setCodigo("RGL002");
-        reglaFrecuencia.setTipo("FRQ");
+        reglaFrecuencia.setCodReglaFraude("RGL002");
+        reglaFrecuencia.setTipoRegla("FRQ");
         reglaFrecuencia.setDescripcion("Regla de frecuencia de transacciones");
         reglaFrecuencia.setEstado(true);
         reglaFrecuencia.setMaxTransaccionesPorMinuto(5);
@@ -77,8 +77,8 @@ public class ReglaFraudeRepositoryTest {
         ReglaFraudeDTO resultado = reglaFraudeRepository.findById("RGL001");
 
         assertNotNull(resultado);
-        assertEquals("RGL001", resultado.getCodigo());
-        assertEquals("MON", resultado.getTipo());
+        assertEquals("RGL001", resultado.getCodReglaFraude());
+        assertEquals("MON", resultado.getTipoRegla());
         verify(valueOperations, times(1)).get(eq(key));
     }
 
@@ -126,7 +126,7 @@ public class ReglaFraudeRepositoryTest {
 
         assertNotNull(resultados);
         assertEquals(2, resultados.size());
-        assertEquals("RGL001", resultados.get(0).getCodigo());
+        assertEquals("RGL001", resultados.get(0).getCodReglaFraude());
         verify(redisTemplate, times(1)).keys(eq(KEY_PREFIX + "*"));
     }
 
@@ -144,8 +144,8 @@ public class ReglaFraudeRepositoryTest {
 
         assertNotNull(resultados);
         assertEquals(1, resultados.size());
-        assertEquals("RGL001", resultados.get(0).getCodigo());
-        assertEquals("MON", resultados.get(0).getTipo());
+        assertEquals("RGL001", resultados.get(0).getCodReglaFraude());
+        assertEquals("MON", resultados.get(0).getTipoRegla());
         verify(redisTemplate, times(1)).keys(eq(KEY_PREFIX + "*"));
     }
 

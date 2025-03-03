@@ -1,9 +1,9 @@
 package com.banquito.paymentprocessor.validafraude.banquito.service;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
-import com.banquito.paymentprocessor.validafraude.banquito.dto.TransaccionTemporalDTO;
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ValidacionFraudeRequestDTO;
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ValidacionFraudeResponseDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ReglaFraudeDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.TransaccionTemporalDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ValidacionFraudeRequestDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ValidacionFraudeResponseDTO;
 import com.banquito.paymentprocessor.validafraude.banquito.repository.ReglaFraudeRepository;
 import com.banquito.paymentprocessor.validafraude.banquito.repository.TransaccionTemporalRepository;
 

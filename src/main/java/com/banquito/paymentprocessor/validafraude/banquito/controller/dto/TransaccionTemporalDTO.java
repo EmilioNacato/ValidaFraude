@@ -1,4 +1,4 @@
-package com.banquito.paymentprocessor.validafraude.banquito.dto;
+package com.banquito.paymentprocessor.validafraude.banquito.controller.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

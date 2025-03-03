@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ErrorResponseDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ErrorResponseDTO;
 import com.banquito.paymentprocessor.validafraude.banquito.exception.ReglaFraudeNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;

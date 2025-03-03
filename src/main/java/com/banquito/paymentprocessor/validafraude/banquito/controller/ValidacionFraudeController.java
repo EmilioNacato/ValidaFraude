@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ValidacionFraudeRequestDTO;
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ValidacionFraudeResponseDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ValidacionFraudeRequestDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ValidacionFraudeResponseDTO;
 import com.banquito.paymentprocessor.validafraude.banquito.service.ValidacionFraudeService;
 
 import io.swagger.v3.oas.annotations.Operation;

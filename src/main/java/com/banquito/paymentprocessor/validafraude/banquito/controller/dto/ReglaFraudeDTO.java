@@ -1,4 +1,4 @@
-package com.banquito.paymentprocessor.validafraude.banquito.dto;
+package com.banquito.paymentprocessor.validafraude.banquito.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;

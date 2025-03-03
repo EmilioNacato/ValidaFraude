@@ -1,4 +1,4 @@
-package com.banquito.paymentprocessor.validafraude.banquito.dto;
+package com.banquito.paymentprocessor.validafraude.banquito.controller.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

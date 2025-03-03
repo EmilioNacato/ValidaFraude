@@ -26,7 +26,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ReglaFraudeDTO;
 import com.banquito.paymentprocessor.validafraude.banquito.exception.ReglaFraudeNotFoundException;
 import com.banquito.paymentprocessor.validafraude.banquito.service.ReglaFraudeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,22 +49,22 @@ public class ReglaFraudeControllerTest {
     @BeforeEach
     void setUp() {
         reglaFraudeDTO = new ReglaFraudeDTO();
-        reglaFraudeDTO.setCodigo("RGL001");
-        reglaFraudeDTO.setTipo("MON");
+        reglaFraudeDTO.setCodReglaFraude("RGL001");
+        reglaFraudeDTO.setTipoRegla("MON");
         reglaFraudeDTO.setDescripcion("Regla de monto límite");
         reglaFraudeDTO.setEstado(true);
         reglaFraudeDTO.setMontoLimite(new BigDecimal("5000.00"));
 
         ReglaFraudeDTO reglaFraudeDTO2 = new ReglaFraudeDTO();
-        reglaFraudeDTO2.setCodigo("RGL002");
-        reglaFraudeDTO2.setTipo("FRQ");
+        reglaFraudeDTO2.setCodReglaFraude("RGL002");
+        reglaFraudeDTO2.setTipoRegla("FRQ");
         reglaFraudeDTO2.setDescripcion("Regla de frecuencia de transacciones");
         reglaFraudeDTO2.setEstado(true);
         reglaFraudeDTO2.setMaxTransaccionesPorMinuto(5);
 
         ReglaFraudeDTO reglaFraudeDTO3 = new ReglaFraudeDTO();
-        reglaFraudeDTO3.setCodigo("RGL003");
-        reglaFraudeDTO3.setTipo("PAT");
+        reglaFraudeDTO3.setCodReglaFraude("RGL003");
+        reglaFraudeDTO3.setTipoRegla("PAT");
         reglaFraudeDTO3.setDescripcion("Regla de patrón de tiempo");
         reglaFraudeDTO3.setEstado(false);
         reglaFraudeDTO3.setMaxTransaccionesPorMinuto(10);
@@ -114,8 +114,8 @@ public class ReglaFraudeControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(reglaFraudeDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.codigo", is("RGL001")))
-                .andExpect(jsonPath("$.tipo", is("MON")))
+                .andExpect(jsonPath("$.codReglaFraude", is("RGL001")))
+                .andExpect(jsonPath("$.tipoRegla", is("MON")))
                 .andExpect(jsonPath("$.descripcion", is("Regla de monto límite")));
     }
 
@@ -131,8 +131,9 @@ public class ReglaFraudeControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(reglaActualizada)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.codigo", is("RGL001")))
-                .andExpect(jsonPath("$.descripcion", is("Regla actualizada")));
+                .andExpect(jsonPath("$.codReglaFraude", is("RGL001")))
+                .andExpect(jsonPath("$.descripcion", is("Regla actualizada")))
+                .andExpect(jsonPath("$.montoLimite", is(7000.00)));
     }
 
     @Test
