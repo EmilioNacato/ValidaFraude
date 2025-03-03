@@ -4,20 +4,27 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @Schema(description = "DTO para la gestión de reglas de fraude")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ReglaFraudeDTO implements Serializable {
     
     @Schema(description = "Código único de la regla de fraude", example = "RF001")
+    @JsonProperty(value = "codReglaFraude")
     private String codReglaFraude;
 
     @NotBlank(message = "El tipo de regla es requerido")
     @Size(max = 3, message = "El tipo de regla no puede exceder los 3 caracteres")
     @Schema(description = "Tipo de regla (MON: Monto, TRX: Transacciones)", example = "MON")
+    @JsonProperty(value = "tipoRegla")
     private String tipoRegla;
 
     @Size(max = 200, message = "La descripción no puede exceder los 200 caracteres")
@@ -41,4 +48,25 @@ public class ReglaFraudeDTO implements Serializable {
     @Max(value = 1440, message = "El periodo de evaluación no puede exceder 24 horas (1440 minutos)")
     @Schema(description = "Periodo de evaluación en minutos", example = "60")
     private Integer periodoEvaluacion;
+    
+    // Métodos para compatibilidad con campos antiguos
+    @JsonProperty("codigo")
+    public void setCodigo(String codigo) {
+        this.codReglaFraude = codigo;
+    }
+    
+    @JsonProperty("tipo")
+    public void setTipo(String tipo) {
+        this.tipoRegla = tipo;
+    }
+    
+    @JsonProperty("codigo")
+    public String getCodigo() {
+        return this.codReglaFraude;
+    }
+    
+    @JsonProperty("tipo")
+    public String getTipo() {
+        return this.tipoRegla;
+    }
 } 
