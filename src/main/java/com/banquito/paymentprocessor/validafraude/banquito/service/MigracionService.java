@@ -1,6 +1,6 @@
 package com.banquito.paymentprocessor.validafraude.banquito.service;
 
-import com.banquito.paymentprocessor.validafraude.banquito.dto.ReglaFraudeDTO;
+import com.banquito.paymentprocessor.validafraude.banquito.controller.dto.ReglaFraudeDTO;
 import com.banquito.paymentprocessor.validafraude.banquito.repository.ReglaFraudeRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
