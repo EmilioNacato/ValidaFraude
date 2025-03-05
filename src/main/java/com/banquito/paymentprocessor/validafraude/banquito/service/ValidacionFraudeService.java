@@ -41,22 +41,18 @@ public class ValidacionFraudeService {
         ValidacionFraudeResponseDTO response = new ValidacionFraudeResponseDTO();
 
         try {
-            // 1. Validar monto límite
             if (validarMontoLimite(request.getMonto())) {
                 return crearRespuestaFraude("Monto excede el límite permitido", "MONTO_LIMITE");
             }
 
-            // 2. Validar frecuencia de transacciones
             if (validarFrecuenciaTransacciones(request.getNumeroTarjeta())) {
                 return crearRespuestaFraude("Excede el número de transacciones permitidas por minuto", "FRECUENCIA");
             }
 
-            // 3. Validar patrón de tiempo usando transacciones temporales
             if (validarPatronTiempo(request.getNumeroTarjeta())) {
                 return crearRespuestaFraude("Patrón de transacciones sospechoso", "PATRON_TIEMPO");
             }
 
-            // Si pasa todas las validaciones
             response.setEsFraude(false);
             response.setMensaje("Transacción válida");
             response.setCodigoRegla("VALIDA");
@@ -78,7 +74,6 @@ public class ValidacionFraudeService {
             return false;
         }
         
-        // Buscar si alguna regla se cumple
         return reglas.stream()
                 .anyMatch(regla -> regla.getMontoLimite() != null && 
                           monto.compareTo(regla.getMontoLimite()) > 0);
@@ -102,7 +97,6 @@ public class ValidacionFraudeService {
     }
 
     private boolean validarPatronTiempo(String numeroTarjeta) {
-        // Buscar transacciones recientes para la tarjeta usando el repositorio de transacciones temporales
         List<TransaccionTemporalDTO> transaccionesRecientes = 
                 transaccionTemporalRepository.findByNumeroTarjeta(numeroTarjeta);
         
@@ -117,7 +111,6 @@ public class ValidacionFraudeService {
             return false;
         }
         
-        // Para cada regla de patrón, validar si se cumple la condición
         for (ReglaFraudeDTO regla : reglas) {
             if (regla.getPeriodoEvaluacion() != null && regla.getMaxTransaccionesPorMinuto() != null) {
                 LocalDateTime tiempoLimite = LocalDateTime.now().minusMinutes(regla.getPeriodoEvaluacion());
@@ -126,7 +119,6 @@ public class ValidacionFraudeService {
                         .filter(t -> t.getFechaTransaccion().isAfter(tiempoLimite))
                         .count();
                 
-                // Si la cantidad de transacciones en el periodo supera el máximo, es fraude
                 if (countRecent > regla.getMaxTransaccionesPorMinuto() * regla.getPeriodoEvaluacion()) {
                     log.info("Patrón de tiempo sospechoso detectado: {} transacciones en {} minutos", 
                             countRecent, regla.getPeriodoEvaluacion());
@@ -146,7 +138,6 @@ public class ValidacionFraudeService {
         return response;
     }
 
-    // Métodos para administración de reglas
     public void guardarRegla(ReglaFraudeDTO reglaDTO) {
         reglaFraudeRepository.save(reglaDTO);
     }

@@ -108,7 +108,7 @@ public class ReglaFraudeController {
         return ResponseEntity.ok(regla);
     }
 
-    @PostMapping("/registro")
+    @PostMapping("/")
     @Operation(
         summary = "Registrar nueva regla de fraude",
         description = "Crea y registra una nueva regla de fraude en el sistema con los datos proporcionados. " +
