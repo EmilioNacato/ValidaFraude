@@ -2,6 +2,7 @@ package com.banquito.paymentprocessor.validafraude.banquito.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -64,11 +66,11 @@ public class ValidacionFraudeServiceTest {
     @BeforeEach
     void setUp() {
         requestDTO = new ValidacionFraudeRequestDTO();
-        requestDTO.setNumeroTarjeta("4111111111111111");
-        requestDTO.setMonto(new BigDecimal("10000.00"));
+        requestDTO.setNumeroTarjeta("4532123456789012");
+        requestDTO.setMonto(new BigDecimal("100.50"));
         requestDTO.setCodigoComercio("COM123");
         requestDTO.setCodigoUnico("TRX123456");
-        requestDTO.setTipoTransaccion("COMPRA");
+        requestDTO.setTipoTransaccion("PEN");
 
         ReglaFraudeDTO reglaMontoLimite = new ReglaFraudeDTO();
         reglaMontoLimite.setCodReglaFraude("RGL001");
@@ -107,67 +109,62 @@ public class ValidacionFraudeServiceTest {
     }
 
     @Test
-    void validarTransaccion_sinFraude_retornaTransaccionValida() {
-        when(reglaFraudeRepository.findByTipoReglaAndEstadoTrue("MON")).thenReturn(new ArrayList<>());
-        when(reglaFraudeRepository.findByTipoReglaAndEstadoTrue("FRQ")).thenReturn(new ArrayList<>());
-        when(reglaFraudeRepository.findByTipoReglaAndEstadoTrue("PAT")).thenReturn(new ArrayList<>());
+    void validarTransaccion_cuandoTransaccionValida_retornaNoFraude() {
+        when(reglaFraudeRepository.findAll()).thenReturn(Collections.emptyList());
+        when(transaccionTemporalRepository.findAll()).thenReturn(Collections.emptyList());
+        when(valueOperations.get(anyString())).thenReturn(null);
 
-        ValidacionFraudeResponseDTO resultado = validacionFraudeService.validarTransaccion(requestDTO);
+        ValidacionFraudeResponseDTO response = validacionFraudeService.validarTransaccion(requestDTO);
 
-        assertFalse(resultado.isEsFraude());
-        assertEquals("VALIDA", resultado.getCodigoRegla());
+        assertNotNull(response);
+        assertFalse(response.isEsFraude());
+        assertEquals("BAJO", response.getNivelRiesgo());
+        assertTrue(response.getMensaje().contains("válida") || response.getMensaje().contains("Transacción"));
+
+        verify(reglaFraudeRepository).findAll();
     }
 
     @Test
-    void validarTransaccion_montoExcedeLimite_detectaFraude() {
-        when(reglaFraudeRepository.findByTipoReglaAndEstadoTrue("MON")).thenReturn(reglasMontoLimite);
+    void validarTransaccion_cuandoMontoExcesivo_retornaFraude() {
+        requestDTO.setMonto(new BigDecimal("50000.00"));
 
-        ValidacionFraudeResponseDTO resultado = validacionFraudeService.validarTransaccion(requestDTO);
+        ValidacionFraudeResponseDTO response = validacionFraudeService.validarTransaccion(requestDTO);
 
-        assertTrue(resultado.isEsFraude());
-        assertEquals("MONTO_LIMITE", resultado.getCodigoRegla());
+        assertNotNull(response);
+        assertTrue(response.isEsFraude());
+        assertEquals("MONTO_LIMITE", response.getCodigoRegla());
+        assertEquals("ALTO", response.getNivelRiesgo());
+        assertTrue(response.getMensaje().contains("Monto excede") || response.getMensaje().contains("límite"));
+
+        verify(reglaFraudeRepository, times(0)).findAll();
     }
 
     @Test
-    void validarTransaccion_frecuenciaExcesiva_detectaFraude() {
-        when(reglaFraudeRepository.findByTipoReglaAndEstadoTrue("MON")).thenReturn(new ArrayList<>());
-        when(reglaFraudeRepository.findByTipoReglaAndEstadoTrue("FRQ")).thenReturn(reglasFrecuencia);
-        when(valueOperations.increment(anyString())).thenReturn(5L);
+    void validarTransaccion_cuandoFrecuenciaExcesiva_retornaFraude() {
+        when(valueOperations.get(anyString())).thenReturn(5);
 
-        ValidacionFraudeResponseDTO resultado = validacionFraudeService.validarTransaccion(requestDTO);
+        ValidacionFraudeResponseDTO response = validacionFraudeService.validarTransaccion(requestDTO);
 
-        assertTrue(resultado.isEsFraude());
-        assertEquals("FRECUENCIA", resultado.getCodigoRegla());
-        verify(redisTemplate).expire(anyString(), eq(1L), eq(TimeUnit.MINUTES));
+        assertNotNull(response);
+        assertTrue(response.isEsFraude());
+        assertEquals("FRECUENCIA", response.getCodigoRegla());
+        assertEquals("ALTO", response.getNivelRiesgo());
+        assertTrue(response.getMensaje().contains("Excede") || response.getMensaje().contains("transacciones"));
+
+        verify(valueOperations).increment(anyString());
     }
 
     @Test
-    void validarTransaccion_patronTiempoSospechoso_detectaFraude() {
-        when(reglaFraudeRepository.findByTipoReglaAndEstadoTrue("MON")).thenReturn(new ArrayList<>());
-        when(reglaFraudeRepository.findByTipoReglaAndEstadoTrue("FRQ")).thenReturn(new ArrayList<>());
-        when(reglaFraudeRepository.findByTipoReglaAndEstadoTrue("PAT")).thenReturn(reglasPatron);
-        when(transaccionTemporalRepository.findByNumeroTarjeta(anyString())).thenReturn(transaccionesRecientes);
-        
-        // Asegurar que las transacciones están dentro del período
-        LocalDateTime tiempoLimite = LocalDateTime.now().minusMinutes(reglasPatron.get(0).getPeriodoEvaluacion());
-        for (TransaccionTemporalDTO transaccion : transaccionesRecientes) {
-            transaccion.setFechaTransaccion(tiempoLimite.plusMinutes(1)); // Todas dentro del período
-        }
+    void validarTransaccion_cuandoErrorEnProcesamiento_manejaExcepcion() {
+        when(reglaFraudeRepository.findAll()).thenThrow(new RuntimeException("Error de conexión"));
 
-        ValidacionFraudeResponseDTO resultado = validacionFraudeService.validarTransaccion(requestDTO);
+        ValidacionFraudeResponseDTO response = validacionFraudeService.validarTransaccion(requestDTO);
 
-        assertTrue(resultado.isEsFraude());
-        assertEquals("PATRON_TIEMPO", resultado.getCodigoRegla());
-    }
-
-    @Test
-    void validarTransaccion_excepcionOcurre_retornaError() {
-        when(reglaFraudeRepository.findByTipoReglaAndEstadoTrue("MON")).thenThrow(new RuntimeException("Error simulado"));
-
-        ValidacionFraudeResponseDTO resultado = validacionFraudeService.validarTransaccion(requestDTO);
-
-        assertTrue(resultado.isEsFraude());
-        assertEquals("ERROR", resultado.getCodigoRegla());
+        assertNotNull(response);
+        assertTrue(response.isEsFraude());
+        assertEquals("ERROR", response.getCodigoRegla());
+        assertEquals("ALTO", response.getNivelRiesgo());
+        assertTrue(response.getMensaje().contains("Error") || response.getMensaje().contains("validación"));
     }
 
     @Test

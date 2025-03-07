@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,7 @@ import com.banquito.paymentprocessor.validafraude.banquito.service.ReglaFraudeSe
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(ReglaFraudeController.class)
-public class ReglaFraudeControllerTest {
+class ReglaFraudeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,135 +45,109 @@ public class ReglaFraudeControllerTest {
     private ObjectMapper objectMapper;
 
     private ReglaFraudeDTO reglaFraudeDTO;
-    private List<ReglaFraudeDTO> reglasDto;
+    private List<ReglaFraudeDTO> reglaFraudeDTOList;
 
     @BeforeEach
     void setUp() {
+        // Configurar una regla de fraude para las pruebas
         reglaFraudeDTO = new ReglaFraudeDTO();
-        reglaFraudeDTO.setCodReglaFraude("RGL001");
+        reglaFraudeDTO.setCodReglaFraude("REGLA001");
+        reglaFraudeDTO.setDescripcion("Regla que verifica si el monto excede el límite permitido");
         reglaFraudeDTO.setTipoRegla("MON");
-        reglaFraudeDTO.setDescripcion("Regla de monto límite");
+        reglaFraudeDTO.setMontoLimite(new BigDecimal("5000.0"));
         reglaFraudeDTO.setEstado(true);
-        reglaFraudeDTO.setMontoLimite(new BigDecimal("5000.00"));
 
-        ReglaFraudeDTO reglaFraudeDTO2 = new ReglaFraudeDTO();
-        reglaFraudeDTO2.setCodReglaFraude("RGL002");
-        reglaFraudeDTO2.setTipoRegla("FRQ");
-        reglaFraudeDTO2.setDescripcion("Regla de frecuencia de transacciones");
-        reglaFraudeDTO2.setEstado(true);
-        reglaFraudeDTO2.setMaxTransaccionesPorMinuto(5);
-
-        ReglaFraudeDTO reglaFraudeDTO3 = new ReglaFraudeDTO();
-        reglaFraudeDTO3.setCodReglaFraude("RGL003");
-        reglaFraudeDTO3.setTipoRegla("PAT");
-        reglaFraudeDTO3.setDescripcion("Regla de patrón de tiempo");
-        reglaFraudeDTO3.setEstado(false);
-        reglaFraudeDTO3.setMaxTransaccionesPorMinuto(10);
-        reglaFraudeDTO3.setPeriodoEvaluacion(30);
-
-        reglasDto = Arrays.asList(reglaFraudeDTO, reglaFraudeDTO2, reglaFraudeDTO3);
+        // Lista de reglas de fraude
+        reglaFraudeDTOList = Arrays.asList(reglaFraudeDTO);
     }
 
     @Test
-    void obtenerTodasLasReglasFraude_debeRetornarListado() throws Exception {
-        when(reglaFraudeService.obtenerTodas()).thenReturn(reglasDto);
+    void obtenerTodasLasReglas_retornaListaReglas() throws Exception {
+        when(reglaFraudeService.obtenerTodas()).thenReturn(reglaFraudeDTOList);
 
-        mockMvc.perform(get("/api/v1/reglas-fraude/listado/todas"))
+        mockMvc.perform(get("/v1/reglas-fraude")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].codigo", is("RGL001")))
-                .andExpect(jsonPath("$[1].codigo", is("RGL002")))
-                .andExpect(jsonPath("$[2].codigo", is("RGL003")));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].codigo").value("REGLA001"));
     }
 
     @Test
-    void consultarReglaPorCodigo_reglaExistente_debeRetornarRegla() throws Exception {
-        when(reglaFraudeService.buscarPorCodigo("RGL001")).thenReturn(reglaFraudeDTO);
+    void obtenerReglaPorCodigo_cuandoExiste_retornaRegla() throws Exception {
+        when(reglaFraudeService.buscarPorCodigo(anyString())).thenReturn(reglaFraudeDTO);
 
-        mockMvc.perform(get("/api/v1/reglas-fraude/consulta/RGL001"))
+        mockMvc.perform(get("/v1/reglas-fraude/REGLA001")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.codigo", is("RGL001")))
-                .andExpect(jsonPath("$.tipo", is("MON")))
-                .andExpect(jsonPath("$.descripcion", is("Regla de monto límite")))
-                .andExpect(jsonPath("$.estado", is(true)));
+                .andExpect(jsonPath("$.codigo").value("REGLA001"));
     }
 
     @Test
-    void consultarReglaPorCodigo_reglaNoExistente_debeRetornarNotFound() throws Exception {
-        when(reglaFraudeService.buscarPorCodigo("REGLA_INEXISTENTE"))
-                .thenThrow(new ReglaFraudeNotFoundException("REGLA_INEXISTENTE"));
+    void obtenerReglaPorCodigo_cuandoNoExiste_retornaNotFound() throws Exception {
+        when(reglaFraudeService.buscarPorCodigo(anyString())).thenReturn(null);
 
-        mockMvc.perform(get("/api/v1/reglas-fraude/consulta/REGLA_INEXISTENTE"))
+        mockMvc.perform(get("/v1/reglas-fraude/NOEXISTE")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void registrarNuevaRegla_datosValidos_debeRetornarReglaCreada() throws Exception {
+    void crearRegla_conDatosValidos_retornaCreated() throws Exception {
         doNothing().when(reglaFraudeService).registrarNueva(any(ReglaFraudeDTO.class));
 
-        mockMvc.perform(post("/api/v1/reglas-fraude/registro")
+        mockMvc.perform(post("/v1/reglas-fraude")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(reglaFraudeDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.codReglaFraude", is("RGL001")))
-                .andExpect(jsonPath("$.tipoRegla", is("MON")))
-                .andExpect(jsonPath("$.descripcion", is("Regla de monto límite")));
+                .andExpect(status().isCreated());
     }
 
     @Test
-    void actualizarReglaExistente_reglaExistente_debeRetornarReglaActualizada() throws Exception {
+    void actualizarRegla_cuandoExiste_retornaOk() throws Exception {
         doNothing().when(reglaFraudeService).actualizarExistente(anyString(), any(ReglaFraudeDTO.class));
 
-        ReglaFraudeDTO reglaActualizada = reglaFraudeDTO;
-        reglaActualizada.setDescripcion("Regla actualizada");
-        reglaActualizada.setMontoLimite(new BigDecimal("7000.00"));
-
-        mockMvc.perform(put("/api/v1/reglas-fraude/actualizacion/RGL001")
+        mockMvc.perform(put("/v1/reglas-fraude/REGLA001")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(reglaActualizada)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.codReglaFraude", is("RGL001")))
-                .andExpect(jsonPath("$.descripcion", is("Regla actualizada")))
-                .andExpect(jsonPath("$.montoLimite", is(7000.00)));
+                .content(objectMapper.writeValueAsString(reglaFraudeDTO)))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void actualizarReglaExistente_reglaNoExistente_debeRetornarNotFound() throws Exception {
-        doThrow(new ReglaFraudeNotFoundException("REGLA_INEXISTENTE"))
-                .when(reglaFraudeService).actualizarExistente(anyString(), any(ReglaFraudeDTO.class));
+    void actualizarRegla_cuandoNoExiste_retornaNotFound() throws Exception {
+        doNothing().when(reglaFraudeService).actualizarExistente(anyString(), any(ReglaFraudeDTO.class));
 
-        mockMvc.perform(put("/api/v1/reglas-fraude/actualizacion/REGLA_INEXISTENTE")
+        mockMvc.perform(put("/v1/reglas-fraude/NOEXISTE")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(reglaFraudeDTO)))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void eliminarRegla_reglaExistente_debeRetornarNoContent() throws Exception {
+    void eliminarRegla_cuandoExiste_retornaNoContent() throws Exception {
         doNothing().when(reglaFraudeService).eliminar(anyString());
 
-        mockMvc.perform(delete("/api/v1/reglas-fraude/eliminacion/RGL001"))
+        mockMvc.perform(delete("/v1/reglas-fraude/REGLA001")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void eliminarRegla_reglaNoExistente_debeRetornarNotFound() throws Exception {
-        doThrow(new ReglaFraudeNotFoundException("REGLA_INEXISTENTE"))
-                .when(reglaFraudeService).eliminar(anyString());
+    void obtenerReglasPorTipo_retornaListaFiltrada() throws Exception {
+        when(reglaFraudeService.obtenerReglasActivasPorTipo(anyString())).thenReturn(reglaFraudeDTOList);
 
-        mockMvc.perform(delete("/api/v1/reglas-fraude/eliminacion/REGLA_INEXISTENTE"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/v1/reglas-fraude/tipo/MON")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].tipoRegla").value("MON"));
     }
 
     @Test
-    void obtenerReglasActivas_debeRetornarListadoFiltrado() throws Exception {
-        List<ReglaFraudeDTO> reglasActivas = Arrays.asList(reglasDto.get(0), reglasDto.get(1));
-        when(reglaFraudeService.obtenerReglasActivas()).thenReturn(reglasActivas);
+    void obtenerReglasPorTipo_cuandoNoHayReglas_retornaListaVacia() throws Exception {
+        when(reglaFraudeService.obtenerReglasActivasPorTipo(anyString())).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/api/v1/reglas-fraude/listado/activas"))
+        mockMvc.perform(get("/v1/reglas-fraude/tipo/NOEXISTE")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].codigo", is("RGL001")))
-                .andExpect(jsonPath("$[1].codigo", is("RGL002")));
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 } 

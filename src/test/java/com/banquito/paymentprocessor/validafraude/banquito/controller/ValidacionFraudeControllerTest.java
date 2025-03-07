@@ -34,75 +34,71 @@ public class ValidacionFraudeControllerTest {
     private ObjectMapper objectMapper;
 
     private ValidacionFraudeRequestDTO requestDTO;
-    private ValidacionFraudeResponseDTO fraudeDetectadoResponseDTO;
-    private ValidacionFraudeResponseDTO transaccionValidaResponseDTO;
+    private ValidacionFraudeResponseDTO responseDTO;
 
     @BeforeEach
     void setUp() {
         requestDTO = new ValidacionFraudeRequestDTO();
-        requestDTO.setNumeroTarjeta("4111111111111111");
-        requestDTO.setMonto(new BigDecimal("1000.00"));
+        requestDTO.setNumeroTarjeta("4532123456789012");
+        requestDTO.setMonto(new BigDecimal("100.50"));
         requestDTO.setCodigoComercio("COM123");
         requestDTO.setCodigoUnico("TRX123456");
-        requestDTO.setTipoTransaccion("COMPRA");
+        requestDTO.setTipoTransaccion("PEN");
 
-        fraudeDetectadoResponseDTO = new ValidacionFraudeResponseDTO();
-        fraudeDetectadoResponseDTO.setEsFraude(true);
-        fraudeDetectadoResponseDTO.setCodigoRegla("MONTO_LIMITE");
-        fraudeDetectadoResponseDTO.setMensaje("Monto excede el límite permitido");
-        fraudeDetectadoResponseDTO.setNivelRiesgo("ALTO");
-
-        transaccionValidaResponseDTO = new ValidacionFraudeResponseDTO();
-        transaccionValidaResponseDTO.setEsFraude(false);
-        transaccionValidaResponseDTO.setCodigoRegla("VALIDA");
-        transaccionValidaResponseDTO.setMensaje("Transacción válida");
-        transaccionValidaResponseDTO.setNivelRiesgo("BAJO");
+        responseDTO = new ValidacionFraudeResponseDTO();
+        responseDTO.setEsFraude(false);
+        responseDTO.setCodigoRegla(null);
+        responseDTO.setMensaje("Transacción válida");
+        responseDTO.setNivelRiesgo("BAJO");
     }
 
     @Test
-    void validarTransaccion_sinFraude_retornaOK() throws Exception {
+    void validarTransaccion_cuandoTransaccionValida_retornaRespuestaExitosa() throws Exception {
         when(validacionFraudeService.validarTransaccion(any(ValidacionFraudeRequestDTO.class)))
-                .thenReturn(transaccionValidaResponseDTO);
+                .thenReturn(responseDTO);
 
-        mockMvc.perform(post("/api/v1/fraude/validar")
+        mockMvc.perform(post("/v1/fraude/validar")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.esFraude").value(false))
-                .andExpect(jsonPath("$.codigoRegla").value("VALIDA"))
-                .andExpect(jsonPath("$.mensaje").value("Transacción válida"));
+                .andExpect(jsonPath("$.mensaje").value("Transacción válida"))
+                .andExpect(jsonPath("$.nivelRiesgo").value("BAJO"));
     }
 
     @Test
-    void validarTransaccion_conFraude_retornaOK() throws Exception {
-        when(validacionFraudeService.validarTransaccion(any(ValidacionFraudeRequestDTO.class)))
-                .thenReturn(fraudeDetectadoResponseDTO);
+    void validarTransaccion_cuandoTransaccionFraudulenta_retornaRespuestaFraude() throws Exception {
+        ValidacionFraudeResponseDTO respuestaFraude = new ValidacionFraudeResponseDTO();
+        respuestaFraude.setEsFraude(true);
+        respuestaFraude.setCodigoRegla("MONTO_LIMITE");
+        respuestaFraude.setMensaje("Monto excede el límite permitido");
+        respuestaFraude.setNivelRiesgo("ALTO");
 
-        mockMvc.perform(post("/api/v1/fraude/validar")
+        when(validacionFraudeService.validarTransaccion(any(ValidacionFraudeRequestDTO.class)))
+                .thenReturn(respuestaFraude);
+
+        mockMvc.perform(post("/v1/fraude/validar")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.esFraude").value(true))
                 .andExpect(jsonPath("$.codigoRegla").value("MONTO_LIMITE"))
-                .andExpect(jsonPath("$.mensaje").value("Monto excede el límite permitido"));
+                .andExpect(jsonPath("$.mensaje").value("Monto excede el límite permitido"))
+                .andExpect(jsonPath("$.nivelRiesgo").value("ALTO"));
     }
 
     @Test
-    void validarTransaccion_errorEnServicio_retornaOK() throws Exception {
-        ValidacionFraudeResponseDTO errorResponseDTO = new ValidacionFraudeResponseDTO();
-        errorResponseDTO.setEsFraude(true);
-        errorResponseDTO.setCodigoRegla("ERROR");
-        errorResponseDTO.setMensaje("Error en validación de fraude: Error de conexión");
+    void validarTransaccion_cuandoDatosInvalidos_retornaBadRequest() throws Exception {
+        ValidacionFraudeRequestDTO requestInvalido = new ValidacionFraudeRequestDTO();
+        requestInvalido.setNumeroTarjeta("123");
+        requestInvalido.setMonto(new BigDecimal("100.50"));
+        requestInvalido.setCodigoComercio("COM123");
+        requestInvalido.setCodigoUnico("TRX123456");
+        requestInvalido.setTipoTransaccion("PEN");
 
-        when(validacionFraudeService.validarTransaccion(any(ValidacionFraudeRequestDTO.class)))
-                .thenReturn(errorResponseDTO);
-
-        mockMvc.perform(post("/api/v1/fraude/validar")
+        mockMvc.perform(post("/v1/fraude/validar")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.esFraude").value(true))
-                .andExpect(jsonPath("$.codigoRegla").value("ERROR"))
-                .andExpect(jsonPath("$.mensaje").value("Error en validación de fraude: Error de conexión"));
+                .content(objectMapper.writeValueAsString(requestInvalido)))
+                .andExpect(status().isBadRequest());
     }
 } 
